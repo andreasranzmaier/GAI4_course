@@ -14,11 +14,13 @@ dependencies = [
     "seaborn>=0.13.2",
     "pymupdf>=1.27.2.2",
     "transformers>=4.51.0",
-    "torch>=2.6.0",
+    "torch>=2.7.0",
     "sentencepiece>=0.2.0",
     "cmap>=0.7.2",
     "pyarrow>=23.0.1",
     "datasets>=4.8.4",
+    "torchvision>=0.26.0",
+    "timm>=1.0.26",
 ]
 
 [[tool.uv.index]]
@@ -27,4 +29,10 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.uv.sources]
+# torch is installed by .devcontainer/setup.sh at container start:
+#   NVIDIA GPU (Windows RTX 5070) → cu128 wheel with Blackwell sm_120 support
+#   No GPU (Mac / CPU)            → cpu wheel
+# The cpu index here is the uv-sync fallback only; setup.sh overrides it.
 torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }
