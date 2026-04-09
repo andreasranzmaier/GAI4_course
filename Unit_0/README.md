@@ -30,6 +30,9 @@ Managed via `uv`. Key dependencies:
 
 ## Usage
 
-1. Ensure the dataset is in `data/fruits-360`.
+1. Initialize the Fruits-360 dataset submodule (~3.8 GB):
+   ```bash
+   git submodule update --init Unit_0/data/fruits-360
+   ```
 2. Run `uv sync` to install dependencies.
 3. Execute notebooks sequentially (00–04).
