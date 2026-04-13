@@ -23,6 +23,9 @@ dependencies = [
     "timm>=1.0.26",
 ]
 
+[tool.setuptools.packages.find]
+include = []
+
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"

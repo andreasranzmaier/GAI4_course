@@ -1,0 +1,16 @@
+gensim>=4.4.0
+ipykernel>=7.1.0
+matplotlib>=3.10.7
+numpy>=2.3.3
+scikit-learn>=1.7.2
+nltk>=3.9.3
+seaborn>=0.13.2
+pymupdf>=1.27.2.2
+transformers>=4.51.0
+torch>=2.7.0
+sentencepiece>=0.2.0
+cmap>=0.7.2
+pyarrow>=23.0.1
+datasets>=4.8.4
+torchvision>=0.26.0
+timm>=1.0.26

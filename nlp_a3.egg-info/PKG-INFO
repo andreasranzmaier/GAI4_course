@@ -1,0 +1,48 @@
+Metadata-Version: 2.4
+Name: nlp-a3
+Version: 0.1.0
+Summary: NLP Assignment 3 — BoW, TF-IDF, N-Grams, Word2Vec, FastText
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: gensim>=4.4.0
+Requires-Dist: ipykernel>=7.1.0
+Requires-Dist: matplotlib>=3.10.7
+Requires-Dist: numpy>=2.3.3
+Requires-Dist: scikit-learn>=1.7.2
+Requires-Dist: nltk>=3.9.3
+Requires-Dist: seaborn>=0.13.2
+Requires-Dist: pymupdf>=1.27.2.2
+Requires-Dist: transformers>=4.51.0
+Requires-Dist: torch>=2.7.0
+Requires-Dist: sentencepiece>=0.2.0
+Requires-Dist: cmap>=0.7.2
+Requires-Dist: pyarrow>=23.0.1
+Requires-Dist: datasets>=4.8.4
+Requires-Dist: torchvision>=0.26.0
+Requires-Dist: timm>=1.0.26
+
+# GAI4 Course
+
+## Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/MustafaArikan/GAI4_course.git
+cd GAI4_course
+```
+
+### 2. Install dependencies
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you don't have it:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Then set up the environment for the unit you want to work on:
+
+```bash
+cd Unit_0
+uv sync
+```
