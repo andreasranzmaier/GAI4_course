@@ -1,41 +1,38 @@
 [project]
-name = "nlp-a3"
+name = "nlp-a6"
 version = "0.1.0"
-description = "NLP Assignment 3 — BoW, TF-IDF, N-Grams, Word2Vec, FastText"
-readme = "README.md"
-requires-python = ">=3.11"
+description = "NLP Assignment 6 - Prompting"
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "gensim>=4.4.0",
-    "ipykernel>=7.1.0",
-    "matplotlib>=3.10.7",
-    "numpy>=2.3.3",
-    "scikit-learn>=1.7.2",
-    "nltk>=3.9.3",
-    "seaborn>=0.13.2",
-    "pymupdf>=1.27.2.2",
-    "transformers>=4.51.0",
-    "torch>=2.7.0",
-    "sentencepiece>=0.2.0",
-    "cmap>=0.7.2",
-    "pyarrow>=23.0.1",
-    "datasets>=4.8.4",
-    "torchvision>=0.26.0",
+    "torch==2.7.1",
+    "ipykernel>=6.0.0",
+    "matplotlib>=3.8.0",
+    "numpy>=1.26.0",
+    "scikit-learn>=1.4.0",
+    "pandas>=2.1.0",
+    "seaborn>=0.13.0",
+    "pyarrow>=14.0.0",
+    # Exercise 2 – LDA
+    "gensim>=4.3.0",
+    "nltk>=3.8.0",
+    "sentence-transformers>=3.0.0",
+    "umap-learn>=0.5.0",
+    "hdbscan>=0.8.0",
+    "datasets>=3.0.0",
+    "nbformat>=5.10.4",
+    "transformers>=5.0.0",
+    "accelerate>=0.26.0",
+    "flash_attn==2.7.4.post1; python_version < '3.12'",
+    "vllm>=0.7.3",
+    "tqdm>=4.65.0",
     "timm>=1.0.26",
+    "nbconvert>=7.17.1",
 ]
 
-[tool.setuptools.packages.find]
-include = []
-
 [[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
 [tool.uv.sources]
-# torch is installed by .devcontainer/setup.sh at container start:
-#   NVIDIA GPU (Windows RTX 5070) → cu128 wheel with Blackwell sm_120 support
-#   No GPU (Mac / CPU)            → cpu wheel
-# The cpu index here is the uv-sync fallback only; setup.sh overrides it.
-torch = { index = "pytorch-cpu" }
-torchvision = { index = "pytorch-cpu" }
-torchaudio = { index = "pytorch-cpu" }
+torch = { index = "pytorch-cu128" }
