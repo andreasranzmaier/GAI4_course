@@ -5,7 +5,6 @@ __pycache__/
 *.pth
 Unit_0/PrepData/
 .DS_Store
-.devcontainer
 
 Unit_1/PrepData/
 Unit_1/data
