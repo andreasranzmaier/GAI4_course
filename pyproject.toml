@@ -28,6 +28,11 @@ dependencies = [
     "timm>=1.0.26",
     "nbconvert>=7.17.1",
     "scikit-image>=0.26.0",
+    "dominate>=2.9.1",
+    # HW_4 — segmentation
+    "segmentation-models-pytorch>=0.4.0",
+    "albumentations>=2.0.0",
+    "opencv-python-headless>=4.11.0",
 ]
 
 [[tool.uv.index]]
