@@ -115,4 +115,36 @@ patch_file(
     guard="if len(self.gpu_ids) > 0 else label_map.data",
 )
 
+# 4. options/base_options.py — guard torch.cuda.set_device with is_available()
+#    and clear gpu_ids when CUDA is absent so downstream len(gpu_ids) > 0 checks work
+base_options_replacements = [
+    (
+        "        # set gpu ids\n        if len(self.opt.gpu_ids) > 0:\n            torch.cuda.set_device(self.opt.gpu_ids[0])",
+        "        # set gpu ids\n        if len(self.opt.gpu_ids) > 0 and torch.cuda.is_available():\n            torch.cuda.set_device(self.opt.gpu_ids[0])\n        elif not torch.cuda.is_available():\n            self.opt.gpu_ids = []",
+    ),
+]
+patch_file(
+    os.path.join(BASE, "options/base_options.py"),
+    base_options_replacements,
+    guard="torch.cuda.is_available()",
+)
+
+
+# 5. models/pix2pixHD_model.py — fix hardcoded torch.cuda.FloatTensor / ByteTensor
+model_tensor_replacements = [
+    (
+        "input_label = torch.cuda.FloatTensor(torch.Size(oneHot_size)).zero_()",
+        "input_label = (torch.cuda.FloatTensor if len(self.gpu_ids) > 0 else torch.FloatTensor)(torch.Size(oneHot_size)).zero_()",
+    ),
+    (
+        "edge = torch.cuda.ByteTensor(t.size()).zero_()",
+        "edge = (torch.cuda.ByteTensor if len(self.gpu_ids) > 0 else torch.ByteTensor)(t.size()).zero_()",
+    ),
+]
+patch_file(
+    os.path.join(BASE, "models/pix2pixHD_model.py"),
+    model_tensor_replacements,
+    guard="torch.FloatTensor)(torch.Size(oneHot_size))",
+)
+
 print("All patches applied.")
