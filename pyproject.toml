@@ -27,6 +27,7 @@ dependencies = [
     "tqdm>=4.65.0",
     "timm>=1.0.26",
     "nbconvert>=7.17.1",
+    "scikit-image>=0.26.0",
 ]
 
 [[tool.uv.index]]
