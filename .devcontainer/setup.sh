@@ -50,8 +50,9 @@ else
   echo "$CURRENT_HASH" > "$STAMP_FILE"
 fi
 
-# Configure CUDA/XLA environment from the actual venv interpreter path.
-"$VENV_DIR/bin/python" - <<'PY' > "$CUDA_ENV_FILE"
+# Configure CUDA/XLA environment only on x86_64 (CUDA not available on ARM / Mac Docker).
+if [ "$(uname -m)" = "x86_64" ]; then
+  "$VENV_DIR/bin/python" - <<'PY' > "$CUDA_ENV_FILE"
 import glob
 import os
 import site
@@ -66,9 +67,11 @@ print(f'export XLA_FLAGS="--xla_gpu_cuda_data_dir={cuda_home}"')
 print(f'export PATH="{cuda_home}/bin:${{PATH}}"')
 print(f'export LD_LIBRARY_PATH="{":".join(lib_dirs)}:${{LD_LIBRARY_PATH:-}}"')
 PY
-
-if ! grep -q 'source /home/vscode/.venv/.cuda_env.sh' "$BASHRC_FILE"; then
-  printf '\n# Auto-configure CUDA/XLA paths from the active project virtual environment\nsource /home/vscode/.venv/.cuda_env.sh\n' >> "$BASHRC_FILE"
+  if ! grep -q 'source /home/vscode/.venv/.cuda_env.sh' "$BASHRC_FILE"; then
+    printf '\n# Auto-configure CUDA/XLA paths from the active project virtual environment\nsource /home/vscode/.venv/.cuda_env.sh\n' >> "$BASHRC_FILE"
+  fi
+else
+  echo "# Non-x86_64 platform — CUDA env skipped" > "$CUDA_ENV_FILE"
 fi
 
 echo "== Setup complete =="

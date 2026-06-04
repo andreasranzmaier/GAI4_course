@@ -1,5 +1,5 @@
 {
-  "name": "Python Dev (uv; mac/linux CPU)",
+  "name": "CPU / Mac (no GPU)",
   "build": {
     "dockerfile": "Dockerfile",
     "context": "."
