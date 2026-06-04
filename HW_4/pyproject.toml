@@ -1,0 +1,31 @@
+[project]
+name = "hw-4-sol"
+version = "0.1.0"
+description = "HW 4 solution — U-Net segmentation on BBBC010 (brightfield → foreground mask)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "segmentation-models-pytorch>=0.4.0",
+    "albumentations>=2.0.0",
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "jupyterlab>=4.5.6",
+    "scikit-image>=0.25.0",
+    "scikit-learn>=1.5.0",
+    "matplotlib>=3.10.0",
+    "numpy>=2.0.0",
+    "pillow>=11.0.0",
+    "opencv-python>=4.11.0",
+    "tqdm>=4.66.0",
+    "torch==2.10.0+cu128",
+    "torchvision==0.25.0+cu128",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }

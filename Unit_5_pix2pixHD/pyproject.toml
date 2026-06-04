@@ -1,0 +1,28 @@
+[project]
+name = "unit-5-pix2pixhd"
+version = "0.1.0"
+description = "Unit 5: pix2pixHD - Binary mask to fluorescence translation (BBBC039)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "jupyterlab",
+    "dominate",
+    "lpips>=0.1.4",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.3",
+    "opencv-python>=4.11.0",
+    "pillow>=11.2.1",
+    "scikit-image>=0.25.0",
+    "torch==2.10.0+cu128",
+    "torchvision==0.25.0+cu128",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
