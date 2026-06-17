@@ -1,0 +1,29 @@
+[project]
+name = "hw-3-sol"
+version = "0.1.0"
+description = "HW 3 solution — pix2pixHD on BBBC010 (mask → brightfield worm image)"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dominate>=2.9.1",
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "jupyterlab>=4.5.6",
+    "matplotlib>=3.10.0",
+    "numpy>=2.0.0",
+    "opencv-python>=4.11.0",
+    "pillow>=11.0.0",
+    "scikit-image>=0.25.0",
+    "tqdm>=4.66.0",
+    "torch==2.10.0+cu128",
+    "torchvision==0.25.0+cu128",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }

@@ -1,0 +1,45 @@
+[project]
+name = "unit-9"
+version = "0.1.0"
+description = "Unit 9: Video intelligence — Whisper transcription, Qwen2.5-VL translation, summarisation and OCR"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "transformers>=4.49.0",
+    "torch>=2.5.0",
+    "torchvision>=0.20.0",
+    "accelerate>=1.2.0",
+    "bitsandbytes>=0.45.0",
+    "qwen-vl-utils>=0.0.8",
+    "pydantic>=2.9.0",
+    "typer>=0.15.0",
+    "rich>=13.9.0",
+    "pillow>=10.4.0",
+    "librosa>=0.10.2",
+    "soundfile>=0.12.1",
+    "numpy>=1.26.0",
+    "ipykernel>=7.2.0",
+    "ipywidgets>=8.1.8",
+    "jupyterlab>=4.5.5",
+    "matplotlib>=3.10.8",
+]
+
+[project.scripts]
+video-pipeline = "video_pipeline.cli:app"
+
+# Pin torch to a CUDA 12.8 build so it matches the installed NVIDIA driver.
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/video_pipeline"]
