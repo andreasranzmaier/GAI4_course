@@ -1,4 +1,5 @@
-# HW 3 Report — pix2pixHD on BBBC010
+# HW 3 Report - pix2pixHD on BBBC010
+Ranzmaier Andreas 
 
 ## Dataset & Pre-processing
 
@@ -25,20 +26,55 @@ foreground masks labelling worm pixels.
 
 ## Training
 
+**Environment.** Training ran inside a Dev Container (WSL2, Linux) on an NVIDIA RTX 5070 GPU.
+All tensors were placed on the GPU via `--gpu_ids 0` and `cudnn.benchmark = True` was active.
+Training ran in full FP32; the existing `--fp16` flag relies on NVIDIA Apex (not installed) and
+was not used. Native `torch.amp` mixed precision or BF16 would further exploit the 5070's
+tensor cores but was not pursued given the already fast ~11 s/epoch.
+
 pix2pixHD was cloned from NVIDIA's repository and patched for Python 3.11+ compatibility
 (`apply_patches.py`). Key training flags:
+<div style="page-break-after: always;"></div>
+
 
 | Flag | Value | Reason |
 |---|---|---|
 | `--label_nc` | 0 | Input is a raw image (mask), not a semantic map |
-| `--no_instance` | — | No instance boundaries |
+| `--no_instance` | - | No instance boundaries |
 | `--loadSize / --fineSize` | 512 | Matches pre-processing |
 | `--batchSize` | 2 | Fits a single modern GPU at 512 × 512 |
-| `--niter` | 40 | Training epochs (no LR decay) |
+| `--niter` | 100 | Training epochs (extended from 40 after observing continued loss improvement) |
 | `--niter_decay` | 0 | Constant LR throughout |
-| `--save_epoch_freq` | 100 | Disabled periodic saves; milestone logic handles 5/10/20/40 |
+| `--save_epoch_freq` | 100 | Disabled periodic saves; milestone logic handles checkpoints |
 
-Milestone checkpoints were saved at epochs **5, 10, 20, 40** via the patched `train.py`.
+I applied two additional patches to `custom_dataset_data_loader.py` for the WSL2/container
+environment i am running locally: `num_workers=0` (avoids forking into worker processes, which fail when `/dev/shm`
+is too small) and `pin_memory=False` (skips pinned CPU memory). These are purely infrastructure settings - they have no effect on
+gradients, model weights, or evaluation metrics. Because BBBC010 is small (80 training images),
+training is compute-bound; the ~11 s/epoch observed is dominated by forward/backward passes,
+not data loading.
+
+Milestone checkpoints were saved at epochs **5, 10, 20, 40, 60, 80, 100** via the patched
+`train.py`. Training was extended beyond the original 40 epochs after inspecting losses at
+epoch 60, which showed meaningful improvement over epoch 40:
+
+| Loss term   | Epoch 40 | Epoch 60 | Δ     |
+|------------|----------|----------|-------|
+| G_GAN      |  0.569   |  0.444   | −22 % |
+| G_GAN_Feat |  2.868   |  2.241   | −22 % |
+| G_VGG      |  2.277   |  2.087   |  −8 % |
+| D_real     |  0.445   |  0.335   | −25 % |
+<div style="page-break-after: always;"></div>
+
+### Training loss curves
+
+![Training loss curves](loss_curves.png)
+
+Generator losses (G_GAN, G_GAN_Feat, G_VGG) show a clear downward trend across all 100
+epochs. Discriminator losses (D_real, D_fake) oscillate heavily throughout, which is
+expected in adversarial training. The generator and discriminator minimaxing each other,
+so each gain is immediately countered by the other, producing noisy curves
+without a clean trend.
 
 ---
 
@@ -48,49 +84,65 @@ SSIM (Structural Similarity Index) was computed between each generated test imag
 ground-truth brightfield counterpart, using the luminance channel (mean of RGB) with
 `data_range=255`.
 
-<!-- Insert ssim_trend.png here -->
+![SSIM trend across milestone epochs](ssim_trend.png)
+<div style="page-break-after: always;"></div>
 
-| Epoch | Mean SSIM | Std |
-|---|---|---|
-| 5 | *(fill after run)* | *(fill)* |
-| 10 | *(fill after run)* | *(fill)* |
-| 20 | *(fill after run)* | *(fill)* |
-| 40 | *(fill after run)* | *(fill)* |
+| Epoch | Mean SSIM | Std   |
+|------:|----------:|------:|
+|     5 |   0.613   | 0.012 |
+|    10 |   0.734   | 0.018 |
+|    20 |   0.809   | 0.020 |
+|    40 |   0.844   | 0.017 |
+|    60 |   0.844   | 0.024 |
+|    80 |   0.831   | 0.016 |
+|   100 |   0.845   | 0.017 |
 
-SSIM improves most steeply between epochs 5 and 10 as the generator learns coarse worm
-shape. Gains slow in later epochs as the model fine-tunes texture detail. Residual variance
-across test wells reflects genuine biological variability in worm density and orientation.
+SSIM improves most steeply between epochs 5 and 20 (+0.196), as the generator learns coarse
+worm shape and brightness distribution. From epoch 40 onward SSIM plateaus near **0.844**,
+with epochs 60–100 varying by only ±0.014.
+
+Notably, training losses continued to improve through epoch 60 even as SSIM flattened
+(G_GAN and G_GAN_Feat each dropped ~22 %). This reflects a known limitation of SSIM: it
+rewards pixel-aligned structure but is insensitive to high-frequency texture quality that
+improves later in GAN training. 
+
+The best cost/quality trade-off sits at around **epoch 60**, where perceptual losses have improved
+substantially and diminishing returns set in thereafter.
 
 ---
+<div style="page-break-after: always;"></div>
 
 ## Visual Quality & Artefacts
 
-<!-- Insert comparison_epochs.png here -->
+![Side-by-side comparison across epochs](comparison_epochs.png)
 
 **Plausibility.** By epoch 20–40 generated images show the characteristic granular
 brightfield texture of *C. elegans* within the mask boundary. The background (outside the
 mask) is correctly rendered as a flat, near-uniform grey consistent with the real images.
+Early epochs also overshoot brightness at the middle part, but this is largely resolved by epoch 40.
 
-**Artefacts observed:**
+**Background cleanliness.** Real brightfield images contain small random background spots of
+dust, out-of-focus debris, and sensor noise which the generator largely fails to reproduce. The
+generated backgrounds are uniformly clean. This is expected: the model learns the average
+background appearance from 80 training images, suppressing low-frequency noise it cannot
+predict per-image.
 
-- **Boundary ringing** — a faint halo at the mask edge, most pronounced at epoch 5. The
-  generator is uncertain about the transition region and oscillates in intensity there.
-- **Smooth interiors** — early epochs produce uniformly grey worm bodies with little
-  internal texture; this gradually resolves toward epoch 40.
-- **Occasional background bleed** — faint worm-like texture appearing just outside the mask
-  border. Likely driven by the VGG perceptual loss, which encourages high-frequency detail
-  globally.
+**Internal worm structure beyond epoch 60.** After epoch 60 the internal texture of the
+worm bodies becomes slightly more defined with faint internal granularity and brightness
+gradients start to emerge that are absent in earlier checkpoints. This aligns with the
+observed continued drop in G_GAN_Feat and G_VGG losses beyond epoch 40: the generator is
+still refining high-frequency detail even after SSIM has plateaued.
 
 **Zoomed comparison.** Zooming into worm bodies reveals that the real images have
 anisotropic internal structure (gut granules, refraction rings) that the model approximates
-only statistically — generated granularity is plausible but not pixel-accurate, as expected
-for a stochastic GAN.
+only statistically - generated granularity is plausible but not pixel-accurate, as expected
+for a stochastic GAN. For this i also updated the 02_Evaluation notebook to show the full size512 × 512 images, which better reveals the internal texture quality and background noise.
 
 ---
+<div style="page-break-after: always;"></div>
 
 ## Summary
 
-pix2pixHD trained for 40 epochs on 80 mask–image pairs generates qualitatively convincing
-*C. elegans* brightfield images. SSIM improves throughout training. The main remaining
-limitations are smoothed interiors and occasional boundary halos — both typical of a
-perceptual-loss GAN on a small dataset.
+pix2pixHD trained for 100 epochs on 80 mask–image pairs generates qualitatively convincing
+*C. elegans* brightfield images. SSIM improves steeply through epoch 20 then plateaus near
+0.844 from epoch 40 onward; the best cost/quality trade-off is at around **epoch 60**, where training losses had improved ~22 % over epoch 40 while SSIM remained stable.

@@ -9,6 +9,13 @@ STAMP_FILE="$VENV_DIR/.setup.stamp"
 BASHRC_FILE="/home/vscode/.bashrc"
 CUDA_ENV_FILE="$VENV_DIR/.cuda_env.sh"
 
+# The project is bind-mounted from the (Windows) host, where git checks out
+# files with CRLF and filemode off. Match that here so tracked files don't all
+# show up as modified inside the container.
+git config --global core.autocrlf false
+git config --global core.filemode false
+git config --global --add safe.directory "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 echo "== Setup: ensure home venv at $VENV_DIR =="
 
 if [ ! -x "$VENV_DIR/bin/python" ]; then

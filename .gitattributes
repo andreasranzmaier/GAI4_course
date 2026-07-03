@@ -1,0 +1,22 @@
+# Normalize line endings so Windows host and Linux devcontainer agree.
+# Text files are stored as LF in the repo and checked out as LF everywhere.
+* text=auto eol=lf
+
+# Scripts must stay LF regardless of platform.
+*.sh   text eol=lf
+*.py   text eol=lf
+
+# Notebooks are JSON; keep them LF-normalized text.
+*.ipynb text eol=lf
+
+# Binary assets — never touch line endings.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.pdf  binary
+*.pth  binary
+*.zip  binary
+*.pkl  binary
+*.npy  binary
+*.npz  binary
