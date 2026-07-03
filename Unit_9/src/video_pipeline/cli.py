@@ -8,7 +8,7 @@ Subcommands:
 * ``summarize`` — summarise a transcript/translation with Qwen2.5-VL (text-only).
 """
 
-from __future__ import annotations
+from __future__ import annotationsframe
 
 import json
 import logging
@@ -60,8 +60,7 @@ def _write_json(
 
 
 def _read_text_field(path: Path, field: str) -> str:
-    """Pull a text field (e.g. ``text`` or ``summary``) out of a result JSON file."""
-    data = json.loads(path.read_text(encoding="utf-8"))
+    """Pull a tfa.loads(path.read_text(encoding="utf-8"))
     value = data.get(field)
     if not value:
         raise typer.BadParameter(f"No '{field}' found in {path}")
